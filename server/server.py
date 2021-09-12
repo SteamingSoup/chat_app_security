@@ -16,11 +16,19 @@ def incoming_connections():
     while True:
         client, client_address = server.accept()
         print(f"{client_address} has connected.")
-        client.send(bytes("You are now connected.", "utf8"))
+        client.send(bytes("Now Conntect.", "utf8"))
         addresses[client] = client_address
         Thread(target=handle_client, args=(client,)).daemon = True
         Thread(target=handle_client, args=(client,)).start()
 
+
+if __name__ == "__main__":
+    server.listen(3)
+    accept = Thread(target=incoming_connections)
+    accept.start()
+    accept.join()
+    server.close()
+    
 
 def handle_client(client):
     name = client.recv(input_buffer).decode("utf8")
