@@ -1,5 +1,4 @@
-import socket
-from socket import AF_INET, SOCK_STREAM
+from socket import socket, AF_INET, SOCK_STREAM
 from threading import Thread
 
 server_host = "0.0.0.0"
@@ -12,14 +11,15 @@ server.bind(addr)
 client_sockets = {}
 addresses = {}
 
+
 def incoming_connections():
     while True:
         client, client_address = server.accept()
         print(f"{client_address} has connected.")
         client.send(bytes("You are now connected.", "utf8"))
         addresses[client] = client_address
-        Thread(target=handle_client, args=(client_socket,)).daemon = True
-        Thread(target=handle_client, args=(client_socket,)).start()
+        Thread(target=handle_client, args=(client,)).daemon = True
+        Thread(target=handle_client, args=(client,)).start()
 
 
 def handle_client(client):
@@ -28,7 +28,7 @@ def handle_client(client):
     client.send(bytes(rules, "utf8"))
     join = f"{name} has joined the chat"
     broadcast(bytes(join, "utf8"))
-    clients[client] = name
+    client_sockets[client] = name
 
     while True:
         msg = client.recv(input_buffer)
@@ -37,10 +37,11 @@ def handle_client(client):
         else:
             client.send(bytes("{quit}", "utf8"))
             client.close()
-            del clients[client]
+            del client_sockets[client]
             broadcast(bytes(f"{name} has left the chat.", "utf8"))
             break
 
+
 def broadcast(msg, prefix=""):
-    for sockt in clients:
-        sockt.send(bytes(prefix, "utf8")+msg)
+    for sockt in client_sockets:
+        sockt.send(bytes(prefix, "utf8") + msg)
