@@ -13,7 +13,7 @@ addr = (server_host, server_port)
 socket = socket(AF_INET, SOCK_STREAM)
 socket.connect(addr)
 
-def accept_msg():
+def receive():
     while True:
         try:
             msg = socket.recv(input_buffer).decode('utf8')
@@ -23,8 +23,8 @@ def accept_msg():
             
 
 def send():
-    msg = new_msg.get()
-    new_msg.set("")
+    msg = my_msg.get()
+    my_msg.set("")
     socket.send(bytes(msg, 'utf8'))
     if msg == '{quit}':
         socket.close()
@@ -32,7 +32,7 @@ def send():
 
 
 def closing():
-    new_msg.set('{quit')
+    my_msg.set('{quit}')
     send()
 
 top = tkinter.Tk()
@@ -80,8 +80,8 @@ def stop_server():
     start_button.config(state=tkinter.NORMAL)
     stop_button.config(state=tkinter.DISABLED)
 
-top.protocol("delete_window", on_closing)
+top.protocol("WM_DELETE_WINDOW", closing)
 
 receive_thread = Thread(target=receive)
 receive_thread.start()
-tkinter.mainloop() 
+tkinter.mainloop()
